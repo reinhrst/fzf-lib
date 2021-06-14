@@ -10,5 +10,6 @@ var revision string = "devel"
 
 func main() {
 	protector.Protect()
-	fzf.Run(fzf.ParseOptions(), version, revision)
+    fzf.ClaudeMatchOnce()
+	//fzf.Run(fzf.ParseOptions(), version, revision)
 }

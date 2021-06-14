@@ -54,15 +54,14 @@ func NewMatcher(patternBuilder func([]rune) *Pattern,
 // Loop puts Matcher in action
 func (m *Matcher) Loop() {
 	prevCount := 0
-
 	for {
 		var request MatchRequest
-
 		m.reqBox.Wait(func(events *util.Events) {
 			for _, val := range *events {
 				switch val := val.(type) {
 				case MatchRequest:
 					request = val
+                    println("request")
 				default:
 					panic(fmt.Sprintf("Unexpected type: %T", val))
 				}
@@ -98,7 +97,6 @@ func (m *Matcher) Loop() {
 		if !foundCache {
 			merger, cancelled = m.scan(request)
 		}
-
 		if !cancelled {
 			if merger.cacheable() {
 				m.mergerCache[patternString] = merger

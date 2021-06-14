@@ -1,5 +1,33 @@
 package fzf
 
+// Case denotes case-sensitivity of search
+type Case int
+
+const (
+	CaseSmart Case = iota
+	CaseIgnore
+	CaseRespect
+)
+
+// Sort criteria
+type criterion int
+
+const (
+	byScore criterion = iota
+	byLength
+	byBegin
+	byEnd
+)
+
+func isAlphabet(char uint8) bool {
+	return char >= 'a' && char <= 'z'
+}
+
+func isNumeric(char uint8) bool {
+	return char >= '0' && char <= '9'
+}
+
+/*
 import (
 	"fmt"
 	"os"
@@ -171,124 +199,6 @@ type previewOpts struct {
 	follow      bool
 	border      tui.BorderShape
 	headerLines int
-}
-
-// Options stores the values of command-line options
-type Options struct {
-	Fuzzy       bool
-	FuzzyAlgo   algo.Algo
-	Extended    bool
-	Phony       bool
-	Case        Case
-	Normalize   bool
-	Nth         []Range
-	WithNth     []Range
-	Delimiter   Delimiter
-	Sort        int
-	Tac         bool
-	Criteria    []criterion
-	Multi       int
-	Ansi        bool
-	Mouse       bool
-	Theme       *tui.ColorTheme
-	Black       bool
-	Bold        bool
-	Height      sizeSpec
-	MinHeight   int
-	Layout      layoutType
-	Cycle       bool
-	KeepRight   bool
-	Hscroll     bool
-	HscrollOff  int
-	FileWord    bool
-	InfoStyle   infoStyle
-	JumpLabels  string
-	Prompt      string
-	Pointer     string
-	Marker      string
-	Query       string
-	Select1     bool
-	Exit0       bool
-	Filter      *string
-	ToggleSort  bool
-	Expect      map[tui.Event]string
-	Keymap      map[tui.Event][]action
-	Preview     previewOpts
-	PrintQuery  bool
-	ReadZero    bool
-	Printer     func(string)
-	PrintSep    string
-	Sync        bool
-	History     *History
-	Header      []string
-	HeaderLines int
-	Margin      [4]sizeSpec
-	Padding     [4]sizeSpec
-	BorderShape tui.BorderShape
-	Unicode     bool
-	Tabstop     int
-	ClearOnExit bool
-	Version     bool
-}
-
-func defaultPreviewOpts(command string) previewOpts {
-	return previewOpts{command, posRight, sizeSpec{50, true}, "", false, false, false, false, tui.BorderRounded, 0}
-}
-
-func defaultOptions() *Options {
-	return &Options{
-		Fuzzy:       true,
-		FuzzyAlgo:   algo.FuzzyMatchV2,
-		Extended:    true,
-		Phony:       false,
-		Case:        CaseSmart,
-		Normalize:   true,
-		Nth:         make([]Range, 0),
-		WithNth:     make([]Range, 0),
-		Delimiter:   Delimiter{},
-		Sort:        1000,
-		Tac:         false,
-		Criteria:    []criterion{byScore, byLength},
-		Multi:       0,
-		Ansi:        false,
-		Mouse:       true,
-		Theme:       tui.EmptyTheme(),
-		Black:       false,
-		Bold:        true,
-		MinHeight:   10,
-		Layout:      layoutDefault,
-		Cycle:       false,
-		KeepRight:   false,
-		Hscroll:     true,
-		HscrollOff:  10,
-		FileWord:    false,
-		InfoStyle:   infoDefault,
-		JumpLabels:  defaultJumpLabels,
-		Prompt:      "> ",
-		Pointer:     ">",
-		Marker:      ">",
-		Query:       "",
-		Select1:     false,
-		Exit0:       false,
-		Filter:      nil,
-		ToggleSort:  false,
-		Expect:      make(map[tui.Event]string),
-		Keymap:      make(map[tui.Event][]action),
-		Preview:     defaultPreviewOpts(""),
-		PrintQuery:  false,
-		ReadZero:    false,
-		Printer:     func(str string) { fmt.Println(str) },
-		PrintSep:    "\n",
-		Sync:        false,
-		History:     nil,
-		Header:      make([]string, 0),
-		HeaderLines: 0,
-		Margin:      defaultMargin(),
-		Padding:     defaultMargin(),
-		Unicode:     true,
-		Tabstop:     8,
-		ClearOnExit: true,
-		Version:     false}
 }
 
 func help(code int) {
@@ -780,7 +690,7 @@ func init() {
 	// Backreferences are not supported.
 	// "~!@#$%^&*;/|".each_char.map { |c| Regexp.escape(c) }.map { |c| "#{c}[^#{c}]*#{c}" }.join('|')
 	executeRegexp = regexp.MustCompile(
-		`(?si)[:+](execute(?:-multi|-silent)?|reload|preview|change-prompt|unbind):.+|[:+](execute(?:-multi|-silent)?|reload|preview|change-prompt|unbind)(\([^)]*\)|\[[^\]]*\]|~[^~]*~|![^!]*!|@[^@]*@|\#[^\#]*\#|\$[^\$]*\$|%[^%]*%|\^[^\^]*\^|&[^&]*&|\*[^\*]*\*|;[^;]*;|/[^/]*/|\|[^\|]*\|)`)
+		`(?si)[:+](execute(?:-multi|-silent)?|reload|preview|change-prompt|unbind):.+|[:+](execute(?:-multi|-silent)?|reload|preview|change-prompt|unbind)(\([^)]*\)|\[[^\]]*\]|~[^~]*~|![^!]*!|@[^@]*@|\#[^\#]*\#|\$[^\$]*\$|%[^%]*%|\^[^\^]*\^|&[^&]*&|\*[^\*]*\*|;[^;]*;|/[^/]*`+`/|\|[^\|]*\|)`)
 }
 
 func parseKeymap(keymap map[tui.Event][]action, str string) {
@@ -1650,7 +1560,7 @@ func postProcessOptions(opts *Options) {
 
 // ParseOptions parses command-line options
 func ParseOptions() *Options {
-	opts := defaultOptions()
+	opts := DefaultOptions()
 
 	// Options from Env var
 	words, _ := shellwords.Parse(os.Getenv("FZF_DEFAULT_OPTS"))
@@ -1664,3 +1574,4 @@ func ParseOptions() *Options {
 	postProcessOptions(opts)
 	return opts
 }
+*/
