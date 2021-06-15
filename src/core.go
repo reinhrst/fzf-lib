@@ -68,7 +68,7 @@ func NewFzf(hayStack [][]byte) *Fzf {
 }
 
 type FzfResult struct {
-    Key []rune
+    Key string
     HayIndex int32
     Bonus int
     Positions *[]int
@@ -88,7 +88,7 @@ func (fzf *Fzf) Find(needle []rune) []FzfResult {
         item := merger.Get(i).item
         _, bonus, pos := pattern.extendedMatch(item, true, fzf.slab)
         results = append(results, FzfResult{
-            item.text.ToRunes(),
+            item.text.ToString(),
             item.text.Index,
             bonus,
             pos,
