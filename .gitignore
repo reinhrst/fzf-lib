@@ -12,3 +12,4 @@ gopath
 fzf
 tmp
 *.patch
+main.wasm
