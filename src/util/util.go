@@ -2,37 +2,8 @@ package util
 
 import (
 	"math"
-	"os"
-	"strings"
 	"time"
-
-	"github.com/mattn/go-isatty"
-	"github.com/mattn/go-runewidth"
-	"github.com/rivo/uniseg"
 )
-
-// RunesWidth returns runes width
-func RunesWidth(runes []rune, prefixWidth int, tabstop int, limit int) (int, int) {
-	width := 0
-	gr := uniseg.NewGraphemes(string(runes))
-	idx := 0
-	for gr.Next() {
-		rs := gr.Runes()
-		var w int
-		if len(rs) == 1 && rs[0] == '\t' {
-			w = tabstop - (prefixWidth+width)%tabstop
-		} else {
-			s := string(rs)
-			w = runewidth.StringWidth(s) + strings.Count(s, "\n")
-		}
-		width += w
-		if limit > 0 && width > limit {
-			return width, idx
-		}
-		idx += len(rs)
-	}
-	return width, -1
-}
 
 // Max returns the largest integer
 func Max(first int, second int) int {
@@ -115,11 +86,6 @@ func DurWithin(
 		return max
 	}
 	return val
-}
-
-// IsTty returns true is stdin is a terminal
-func IsTty() bool {
-	return isatty.IsTerminal(os.Stdin.Fd())
 }
 
 // Once returns a function that returns the specified boolean value only once

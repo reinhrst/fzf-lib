@@ -41,6 +41,13 @@ I have not encountered adverse issues so far, however feel free to post any issu
 
 I should note that this is my first Go module, so I'm sure to be making many noob mistakes; feel free to point them out in the issue tracker :).
 
+```
+var hayStack [][]byte = {[]byte(`hello world`), []byte(`hyo world`)}
+var myFzf = NewFzf{hayStack}
+var results = myFzf.find("^hel owo")
+println(len(results), results[0].Key, *results[0].Positions)
+```
+
 
 [1]: https://github.com/junegunn/fzf
 [2]: https://github.com/junegunn/fzf/pull/1053#issuecomment-330024275

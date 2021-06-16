@@ -1,63 +1,30 @@
 package main
 
 import (
-	"syscall/js"
-
-	"github.com/junegunn/fzf/src"
+    "github.com/reinhrst/fzf-lib/src"
+    "fmt"
 )
 
 var version string = "0.27"
 var revision string = "devel"
 
-var fzfs []*fzf.Fzf
-
-func NewFzfJs(this js.Value, args []js.Value) interface{} {
-    if !this.IsUndefined() {
-        panic(`Expect "this" to be undefined`)
-    }
-    if len(args) != 1 {
-        panic(`Expect exactly one argument`)
-    }
-    length := args[0].Length()
-    if (length < 1) {
-        panic(`Call fzf with at least one word in the hayStack`)
-    }
-    var hayStack [][]byte
-    for i :=0; i < args[0].Length(); i++ {
-        hayStack = append(hayStack, []byte(args[0].Index(i).String()))
+func test() {
+    var hayStack [][]byte = [][]byte{
+        []byte("apple"),
+        []byte("pear"),
+        []byte("grape"),
+        []byte("apple pear"),
     }
     myFzf := fzf.NewFzf(hayStack)
-    fzfs = append(fzfs, myFzf)
-    return js.ValueOf(len(fzfs) - 1)
-}
-
-
-func Find(this js.Value, args []js.Value) interface{} {
-    fzfNr := args[0].Int()
-    needle := []rune(args[1].String())
-    myFzf := fzfs[fzfNr]
-    results := myFzf.Find(needle)
-    var simpleResults []interface{}
+    results := myFzf.Find([]rune("pe a"))
     for _, result := range results {
-        var simplePositions []interface{}
-        for _, pos :=  range *result.Positions {
-            simplePositions = append(simplePositions, pos)
-        }
-        simpleResults = append(simpleResults, map[string]interface{} {
-            "Key": result.Key,
-            "HayIndex": result.HayIndex,
-            "Bonus": result.Bonus,
-            "Positions": simplePositions,
-        })
+        fmt.Printf("%s %d %d %v\n",
+            result.Key, result.HayIndex, result.Score, *result.Positions)
     }
-    return simpleResults
 }
+
 
 func main() {
-    // fzf.ClaudeMatchOnce()
-	//fzf.Run(fzf.ParseOptions(), version, revision)
-    c := make(chan struct{}, 0)
-    js.Global().Set("NewFzf", js.FuncOf(NewFzfJs))
-    js.Global().Set("FzfFind", js.FuncOf(Find))
-    <-c
+    test()
+    //startWasmServer()
 }

@@ -5,7 +5,7 @@ import (
 	"sort"
 	"unicode"
 
-	"github.com/junegunn/fzf/src/util"
+	"github.com/reinhrst/fzf-lib/src/util"
 )
 
 // Offset holds two 32-bit integers denoting the offsets of a matched substring
@@ -14,14 +14,16 @@ type Offset [2]int32
 type Result struct {
 	item   *Item
 	points [4]uint16
+    positions *[]int
+    score int
 }
 
-func buildResult(item *Item, offsets []Offset, score int) Result {
+func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Result {
 	if len(offsets) > 1 {
 		sort.Sort(ByOrder(offsets))
 	}
 
-	result := Result{item: item}
+    result := Result{item: item, positions: positions, score: score}
 	numChars := item.text.Length()
 	minBegin := math.MaxUint16
 	minEnd := math.MaxUint16
@@ -69,7 +71,7 @@ func buildResult(item *Item, offsets []Offset, score int) Result {
 }
 
 // Sort criteria to use. Never changes once fzf is started.
-var sortCriteria []criterion
+var sortCriteria []criterion = []criterion{byScore}
 
 // Index returns ordinal index of the Item
 func (result *Result) Index() int32 {

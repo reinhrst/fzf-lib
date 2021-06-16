@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/junegunn/fzf/src/algo"
-	"github.com/junegunn/fzf/src/util"
+	"github.com/reinhrst/fzf-lib/src/algo"
+	"github.com/reinhrst/fzf-lib/src/util"
 )
 
 // fuzzy
@@ -302,13 +302,13 @@ func (p *Pattern) matchChunk(chunk *Chunk, space []Result, slab *util.Slab) []Re
 
 	if space == nil {
 		for idx := 0; idx < chunk.count; idx++ {
-			if match, _, _ := p.MatchItem(&chunk.items[idx], false, slab); match != nil {
+			if match, _, _ := p.MatchItem(&chunk.items[idx], true, slab); match != nil {
 				matches = append(matches, *match)
 			}
 		}
 	} else {
 		for _, result := range space {
-			if match, _, _ := p.MatchItem(result.item, false, slab); match != nil {
+			if match, _, _ := p.MatchItem(result.item, true, slab); match != nil {
 				matches = append(matches, *match)
 			}
 		}
@@ -320,7 +320,7 @@ func (p *Pattern) matchChunk(chunk *Chunk, space []Result, slab *util.Slab) []Re
 func (p *Pattern) MatchItem(item *Item, withPos bool, slab *util.Slab) (*Result, []Offset, *[]int) {
 	if p.extended {
 		if offsets, bonus, pos := p.extendedMatch(item, withPos, slab); len(offsets) == len(p.termSets) {
-			result := buildResult(item, offsets, bonus)
+			result := buildResult(item, offsets, pos, bonus)
 			return &result, offsets, pos
 		}
 		return nil, nil, nil
@@ -328,7 +328,7 @@ func (p *Pattern) MatchItem(item *Item, withPos bool, slab *util.Slab) (*Result,
 	offset, bonus, pos := p.basicMatch(item, withPos, slab)
 	if sidx := offset[0]; sidx >= 0 {
 		offsets := []Offset{offset}
-		result := buildResult(item, offsets, bonus)
+		result := buildResult(item, offsets, pos, bonus)
 		return &result, offsets, pos
 	}
 	return nil, nil, nil
