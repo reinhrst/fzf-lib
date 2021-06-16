@@ -89,7 +89,7 @@ func (fzf *Fzf) Find(needle []rune) []FzfResult {
         _, bonus, pos := pattern.extendedMatch(item, true, fzf.slab)
         results = append(results, FzfResult{
             item.text.ToString(),
-            item.text.Index,
+            item.Index(),
             bonus,
             pos,
         })

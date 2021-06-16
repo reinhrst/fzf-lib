@@ -21,11 +21,3 @@ var minItem = Item{text: util.Chars{Index: -1}}
 func (item *Item) TrimLength() uint16 {
 	return item.text.TrimLength()
 }
-
-// AsString returns the original string
-func (item *Item) AsString(stripAnsi bool) string {
-	if item.origText != nil {
-		return string(*item.origText)
-	}
-	return item.text.ToString()
-}
