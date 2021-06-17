@@ -24,11 +24,11 @@ const (
 
 	// Not to cache mergers with large lists
 	mergerCacheMax int = 100000
-
 )
 
 // fzf events
 const (
 	EvtSearchProgress util.EventType = iota
 	EvtSearchFin
+	EvtQuit
 )

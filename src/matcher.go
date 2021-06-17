@@ -6,6 +6,7 @@ import (
 	"sort"
 	"sync"
 	"time"
+	"log"
 
 	"github.com/reinhrst/fzf-lib/src/util"
 )
@@ -34,6 +35,7 @@ type Matcher struct {
 const (
 	reqRetry util.EventType = iota
 	reqReset
+    reqQuit
 )
 
 // NewMatcher returns a new Matcher
@@ -56,18 +58,28 @@ func (m *Matcher) Loop() {
 	prevCount := 0
 	for {
 		var request MatchRequest
+        quit := false
 		m.reqBox.Wait(func(events *util.Events) {
-			for _, val := range *events {
-				switch val := val.(type) {
-				case MatchRequest:
-					request = val
-                    println("request")
+			for evt, val := range *events {
+				switch evt {
+				case reqReset:
+					request = val.(MatchRequest)
+				case reqRetry:
+					request = val.(MatchRequest)
+				case reqQuit:
+					quit = true
 				default:
 					panic(fmt.Sprintf("Unexpected type: %T", val))
 				}
 			}
 			events.Clear()
 		})
+
+    if quit {
+        log.Println("Quiting matcher loop")
+        break
+    }
+
 
 		if request.sort != m.sort || request.clearCache {
 			m.sort = request.sort

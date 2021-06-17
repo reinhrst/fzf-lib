@@ -6,9 +6,9 @@ import (
 
 // Item represents each input line. 56 bytes.
 type Item struct {
-	text        util.Chars    // 32 = 24 + 1 + 1 + 2 + 4
-	transformed *[]Token      // 8
-	origText    *[]byte       // 8
+	text        util.Chars // 32 = 24 + 1 + 1 + 2 + 4
+	transformed *[]Token   // 8
+	origText    *[]byte    // 8
 }
 
 // Index returns ordinal index of the Item

@@ -10,13 +10,13 @@ const (
 )
 
 // Sort criteria
-type criterion int
+type Criterion int
 
 const (
-	byScore criterion = iota
-	byLength
-	byBegin
-	byEnd
+	ByScore Criterion = iota
+	ByLength
+	ByBegin
+	ByEnd
 )
 
 func isAlphabet(char uint8) bool {

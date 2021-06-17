@@ -12,10 +12,10 @@ import (
 type Offset [2]int32
 
 type Result struct {
-	item   *Item
-	points [4]uint16
-    positions *[]int
-    score int
+	item      *Item
+	points    [4]uint16
+	positions *[]int
+	score     int
 }
 
 func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Result {
@@ -23,7 +23,7 @@ func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Resu
 		sort.Sort(ByOrder(offsets))
 	}
 
-    result := Result{item: item, positions: positions, score: score}
+	result := Result{item: item, positions: positions, score: score}
 	numChars := item.text.Length()
 	minBegin := math.MaxUint16
 	minEnd := math.MaxUint16
@@ -42,12 +42,12 @@ func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Resu
 	for idx, criterion := range sortCriteria {
 		val := uint16(math.MaxUint16)
 		switch criterion {
-		case byScore:
+		case ByScore:
 			// Higher is better
 			val = math.MaxUint16 - util.AsUint16(score)
-		case byLength:
+		case ByLength:
 			val = item.TrimLength()
-		case byBegin, byEnd:
+		case ByBegin, ByEnd:
 			if validOffsetFound {
 				whitePrefixLen := 0
 				for idx := 0; idx < numChars; idx++ {
@@ -57,7 +57,7 @@ func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Resu
 						break
 					}
 				}
-				if criterion == byBegin {
+				if criterion == ByBegin {
 					val = util.AsUint16(minEnd - whitePrefixLen)
 				} else {
 					val = util.AsUint16(math.MaxUint16 - math.MaxUint16*(maxEnd-whitePrefixLen)/int(item.TrimLength()))
@@ -71,7 +71,7 @@ func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Resu
 }
 
 // Sort criteria to use. Never changes once fzf is started.
-var sortCriteria []criterion = []criterion{byScore}
+var sortCriteria []Criterion = []Criterion{ByScore}
 
 // Index returns ordinal index of the Item
 func (result *Result) Index() int32 {
