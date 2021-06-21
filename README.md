@@ -60,7 +60,7 @@ TODO
 ### Usage
 
 
-```
+```go
 func main() {
     var options = fzf.DefaultOptions()
     // update any options here
@@ -77,7 +77,7 @@ func main() {
 ```
 
 The following options can be set
-```
+```go
     // If true, each word (separated by non-escaped spaces) is an independent
     // searchterm. If false, all spaces are literal
     Extended bool
@@ -110,7 +110,7 @@ The following options can be set
 
 ```
 The DefaultOptions are as follows:
-```
+```go
 func DefaultOptions() Options {
     return Options{
         Extended: true,
