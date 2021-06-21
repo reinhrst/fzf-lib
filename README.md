@@ -1,4 +1,4 @@
-This repo is an attempt to create a workable library from the amazing [fzf][1] package
+This repo is an attempt to create a workable go-library from the amazing [fzf][1] package
 from Junegunn Choi.
 The original package contains a number of parts (and I'm sure my description does not do justice to what it *actually* is):
 
@@ -7,7 +7,6 @@ The original package contains a number of parts (and I'm sure my description doe
 - A ncurses/terminal integration that allows interactive fuzzy-finding, seeing previews, hotkeys, etc
 - A VIM plugin, that allows fzf to work within (neo)vim
 
-(and probably it does some more things that I don't even know of).
 The author of this repo has been a fervent fzf fan for many years, and thinks it's by far the best fuzzy finder out there.
 
 A limitation of fzf is that it's written as a full program.
@@ -20,32 +19,107 @@ The reasons to go this (above running fzf in a spawned process) are:
 
 - Even though fzf is blazingly fast, when spawning a new process, piping in a long list of options and get back the results for a certain filter, it does take *some* time. This means it feels less than snappy if one is using this as a live-typing filter.
 - The spawned process method unfortunately does not give access to exactly which character positions where matched. The live-typing-searches when running fzf interactively in the terminal show feedback on *exactly which* letters in the strings were matched -- there is no way to create this without this position information.
-- There are environments when you cannot run a spawned fzf process -- for instance if you're in a webpage.
+- There are environments when you cannot run a spawned fzf process -- for instance if you're in a webpage (yes, this project was sparked by an interest to compile fzf to Web Assembly and use clientside in a webpage)
 
 It should be considered that the fzf code is super fast, has been thouroughly tested (both by automatic tests, and by millions of users using it all over the globe), and uses a simple and intuitive syntax that has never failed me (and is burned in my musscle memory).
 Even though it was tempting to implement the fzf fuzzyfinder part from scratch, I opted in the end (because of the reasons in the last sentence) to take the fzf project and strip out all the parts that are not necessary.
+The hope is that this library will maintain the speed and accuracy of the original implementation, while working as a full library.
+Since quite some code had to be rewriten to get the library to work(the original fzf author [notes][2] that one things that might be needed before fzf can be used as a library is to consider "how to revise the code that was written with the assumption that fzf is a short-lived, one-off process") , only time will tell if I succeeded in this goal :).
 
-The result is a "bare minimum" library that:
-- allows initing a fzf object with a list of string. TODO: allow setting of search options
-- allows a "find" call on this object, where a string is provided, which returns an array (sorted by *bonus* descending) of:
+The resulting library:
+- allows initing a fzf stuct with a list of strings and search options (note that fzf contains very many (commandline) options, most of them are to control other things than the actual search.
+- A `Search` method which starts a search. Results are returned through a channel. If a new `Search` is started before the old returns, the old search is cancelled.
+- The data on the channel is either a SearchProgress (if the search takes more than 200ms), or a SearchResult
+- The returned data is:
     - the string matched
     - the index of the matched string (in the original list of strings)
     - the positions of the letters in the string that were matched
     - the bonus (or score) of the match
+- An `End` method. Calling this method is necessary so that the internal go routines are stopped and the Fzf object (which may be quite large since it caches all strings) can be removed from memory.
 
 For now, any change in the list of strings (or search options) means that a new fzf object should be created.
-Doing things this way means that there is no need to worry about race conditions.
 
-Do note that the original fzf author [notes][2] one things that might be needed before fzf can be used as a library is to consider "how to revise the code that was written with the assumption that fzf is a short-lived, one-off process".
-I have not encountered adverse issues so far, however feel free to post any issues in the issue tracker.
 
 I should note that this is my first Go module, so I'm sure to be making many noob mistakes; feel free to point them out in the issue tracker :).
+Obviously also bugs and other issues are welcome.
+
+### Performance
+The goal of this library is to match the performance of the original fzf.
+Where possible, performance enhancing cache has been maintained (and moved into non-global locations, so that multiple fzf objects can live simultaneously).
+One of the places where a performance-changing change has been made is in returning the exacts characters that match the hit.
+In the original fzf, only the matching lines are returned, and only when displaying these in the console the exact characters are retrieved.
+This is obviously faster if one has a complex match that returns thousands of results where we only display a couple in the terminal.
+For now fzf-lib always returns machting character positions for all matches.
+If this turns out to be a bottleneck, in the future we may consider alternative options.
+
+
+### Installation
+
+TODO
+
+### Usage
+
 
 ```
-var hayStack [][]byte = {[]byte(`hello world`), []byte(`hyo world`)}
-var myFzf = NewFzf{hayStack}
-var results = myFzf.find("^hel owo")
-println(len(results), results[0].Key, *results[0].Positions)
+func main() {
+    var options = fzf.DefaultOptions()
+    // update any options here
+    var hayStack [][]byte = {[]byte(`hello world`), []byte(`hyo world`)}
+    var myFzf = NewFzf(hayStack, options)
+    go func() {
+        for {
+            result <- myFzf.resultChannel
+            fmt.Printf("%#v", result)
+        }
+    }()
+    myFzf.Search("^hel owo")
+}
+```
+
+The following options can be set
+```
+    // If true, each word (separated by non-escaped spaces) is an independent
+    // searchterm. If false, all spaces are literal
+    Extended bool
+
+    // if true, default is Fuzzy search (' escapes to make exact search)
+    // if false, default is exact search (' escapes to make fuzzy search)
+    Fuzzy bool
+
+    // CaseRespect, CaseIgnore or CaseSmart
+    // CaseSmart matches case insensitive if the needle is all lowercase, else case sensitive
+    CaseMode Case
+
+    // set to False to get fzf --literal behaviour:
+    // "Do not normalize latin script letters for matching."
+    Normalize bool
+
+    // Array with options from {ByScore, ByLength, ByBegin, ByEnd}.
+    // Metches will first be sorted by the first element, ties will be sorted by
+    // second element, etc.
+    // ByScore: Each match is scored (see algo file for more info), higher score 
+    // comes first
+    // ByLength: Shorter match wins
+    // ByBegin: Match closer to begin of string wins
+    // ByEnd: Match closer to end of string wins
+    //
+    // If all methods give equal score (including when the Sort slice is empty),
+    // the result is sorted by HayIndex, the order in which they appeared in
+    // the input.
+    Sort []Criterion
+
+```
+The DefaultOptions are as follows:
+```
+func DefaultOptions() Options {
+    return Options{
+        Extended: true,
+        Fuzzy: true,
+        CaseMode: CaseSmart,
+        Normalize: true,
+        Sort: []Criterion{ByScore, ByLength},
+    }
+}
 ```
 
 

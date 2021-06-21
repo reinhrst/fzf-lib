@@ -30,6 +30,7 @@ type Matcher struct {
 	partitions     int
 	slab           []*util.Slab
 	mergerCache    map[string]*Merger
+	chunkCache   ChunkCache
 }
 
 const (
@@ -50,7 +51,9 @@ func NewMatcher(patternBuilder func([]rune) *Pattern,
 		reqBox:         util.NewEventBox(),
 		partitions:     partitions,
 		slab:           make([]*util.Slab, partitions),
-		mergerCache:    make(map[string]*Merger)}
+		mergerCache:    make(map[string]*Merger),
+        chunkCache:     NewChunkCache(),
+}
 }
 
 // Loop puts Matcher in action
@@ -84,7 +87,7 @@ func (m *Matcher) Loop() {
 		if request.sort != m.sort || request.clearCache {
 			m.sort = request.sort
 			m.mergerCache = make(map[string]*Merger)
-			clearChunkCache()
+			m.chunkCache = NewChunkCache()
 		}
 
 		// Restart search
@@ -175,7 +178,7 @@ func (m *Matcher) scan(request MatchRequest) (*Merger, bool) {
 			count := 0
 			allMatches := make([][]Result, len(chunks))
 			for idx, chunk := range chunks {
-				matches := request.pattern.Match(chunk, slab)
+				matches := request.pattern.Match(chunk, slab, &m.chunkCache)
 				allMatches[idx] = matches
 				count += len(matches)
 				if cancelled.Get() {

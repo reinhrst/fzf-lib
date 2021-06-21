@@ -18,7 +18,7 @@ type Result struct {
 	score     int
 }
 
-func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Result {
+func buildResult(item *Item, offsets []Offset, positions *[]int, score int, sortCriteria []Criterion) Result {
 	if len(offsets) > 1 {
 		sort.Sort(ByOrder(offsets))
 	}
@@ -69,9 +69,6 @@ func buildResult(item *Item, offsets []Offset, positions *[]int, score int) Resu
 
 	return result
 }
-
-// Sort criteria to use. Never changes once fzf is started.
-var sortCriteria []Criterion = []Criterion{ByScore}
 
 // Index returns ordinal index of the Item
 func (result *Result) Index() int32 {
