@@ -52,6 +52,11 @@ This is obviously faster if one has a complex match that returns thousands of re
 For now fzf-lib always returns machting character positions for all matches.
 If this turns out to be a bottleneck, in the future we may consider alternative options.
 
+Another item that might be a problem (although I doubt it)...
+The original fzf wants `[][]byte` to build up its words to search in and then `[]rune` for searching. 
+This wrapper makes all input and output in `string`.
+Converting should not take much (if any) time, but maybe for very very large datasets there may be a small hit
+
 
 ### Installation
 
