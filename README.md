@@ -123,6 +123,16 @@ func DefaultOptions() Options {
 ```
 
 
+### FAQ
+
+#### Where are all other useful options
+The idea is that most other useful options in fzf cli are easy to build in your client program.
+Things like previews, keybindings, and _nth_ item for parsing should be handled by the client code.
+Just give the string to match to fzf-lib, and keep your own array with the data you want to show/preview/return and use the index of the matched items to retrieve the full item.
+The idea was only to include the items that have to do with _searching and matching_ in this library.
+If you feel that I missed an important option, feel free to file an issue.
+
+
 [1]: https://github.com/junegunn/fzf
 [2]: https://github.com/junegunn/fzf/pull/1053#issuecomment-330024275
 [3]: https://junegunn.kr/2016/02/using-fzf-in-your-program
