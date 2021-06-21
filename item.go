@@ -1,7 +1,7 @@
 package fzf
 
 import (
-	"github.com/reinhrst/fzf-lib/src/util"
+	"github.com/reinhrst/fzf-lib/util"
 )
 
 // Item represents each input line. 56 bytes.

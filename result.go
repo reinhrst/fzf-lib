@@ -5,7 +5,7 @@ import (
 	"sort"
 	"unicode"
 
-	"github.com/reinhrst/fzf-lib/src/util"
+	"github.com/reinhrst/fzf-lib/util"
 )
 
 // Offset holds two 32-bit integers denoting the offsets of a matched substring

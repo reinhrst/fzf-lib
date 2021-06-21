@@ -3,7 +3,7 @@ package fzf
 import (
 	"time"
 
-	"github.com/reinhrst/fzf-lib/src/util"
+	"github.com/reinhrst/fzf-lib/util"
 )
 
 const (

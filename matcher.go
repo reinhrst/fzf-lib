@@ -8,7 +8,7 @@ import (
 	"time"
 	"log"
 
-	"github.com/reinhrst/fzf-lib/src/util"
+	"github.com/reinhrst/fzf-lib/util"
 )
 
 // MatchRequest represents a search request
