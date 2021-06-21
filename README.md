@@ -30,7 +30,7 @@ The resulting library:
 - allows initing a fzf stuct with a list of strings and search options (note that fzf contains very many (commandline) options, most of them are to control other things than the actual search.
 - A `Search` method which starts a search. Results are returned through a channel. If a new `Search` is started before the old returns, the old search is cancelled.
 - The data on the channel is either a SearchProgress (if the search takes more than 200ms), or a SearchResult
-- The returned data is:
+- A SearchResult is a struct with the SearchKey and Options used, and a list of MatchResults:
     - the string matched
     - the index of the matched string (in the original list of strings)
     - the positions of the letters in the string that were matched
@@ -72,6 +72,7 @@ import (
     "fmt"
     "github.com/reinhrst/fzf-lib"
     "time"
+    "sync"
 )
 
 func main() {
@@ -80,15 +81,25 @@ func main() {
     var hayStack = []string{`hello world`, `hyo world`}
     var myFzf = fzf.New(hayStack, options)
     var result fzf.SearchResult
+    wg := sync.WaitGroup{}
+    wg.Add(1)
     go func() {
+        defer wg.Done()
+        outputs := 2
         for {
             result = <- myFzf.GetResultCannel()
             fmt.Printf("%#v", result)
+            outputs--
+            if outputs == 0 {
+                break
+            }
         }
     }()
     myFzf.Search(`^hel owo`)
-    time.Sleep(time.Second)
-    myFzf.End()
+    time.Sleep(200 * time.Millisecond)
+    myFzf.Search(`^hy owo`)
+    wg.Wait()
+    myFzf.End() // Note: not necessary since end of program
 }
 ```
 

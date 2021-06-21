@@ -164,7 +164,6 @@ func (fzf *Fzf) loop() {
 		}
 		select {
 		case fzf.resultChannel <- result:
-			log.Println("result sent")
 		default:
 			log.Println("No listener on the channel")
 		}
