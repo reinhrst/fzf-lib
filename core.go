@@ -67,7 +67,7 @@ type Fzf struct {
 }
 
 // Creates a new Fzf object, with the given haystack and the given options
-func New(hayStack [][]byte, opts Options) *Fzf {
+func New(hayStack []string, opts Options) *Fzf {
 	var itemIndex int32
 	var chunkList = NewChunkList(func(item *Item, data []byte) bool {
 		item.text = util.ToChars(data)
@@ -77,7 +77,7 @@ func New(hayStack [][]byte, opts Options) *Fzf {
 	})
 
 	for _, hayStraw := range hayStack {
-		chunkList.Push(hayStraw)
+		chunkList.Push([]byte(hayStraw))
 	}
 
 	eventBox := util.NewEventBox()
@@ -92,10 +92,10 @@ func New(hayStack [][]byte, opts Options) *Fzf {
 		}
 	}
     patternCache := make(map[string]*Pattern)
-	patternBuilder := func(runes []rune) *Pattern {
+	patternBuilder := func(needle string) *Pattern {
 		return BuildPattern(
 			opts.Fuzzy, algo.FuzzyMatchV2, opts.Extended,
-            opts.CaseMode, opts.Normalize, forward, runes, opts.Sort,
+            opts.CaseMode, opts.Normalize, forward, needle, opts.Sort,
             &patternCache)
 	}
 	matcher := NewMatcher(patternBuilder, true, false, eventBox)
@@ -171,7 +171,7 @@ func (fzf *Fzf) loop() {
 	}
 }
 
-func (fzf *Fzf) Search(needle []rune){
+func (fzf *Fzf) Search(needle string){
 	snapshot, _ := fzf.chunkList.Snapshot()
     fzf.matcher.Reset(snapshot, needle, false, false, true, false)
 }

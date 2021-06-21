@@ -6,11 +6,11 @@ import (
     "reflect"
 )
 
-var hayStack [][]byte = [][]byte{
-    []byte("apple"),
-    []byte("pear"),
-    []byte("grape"),
-    []byte("apple pear"),
+var hayStack = []string{
+    `apple`,
+    `pear`,
+    `grape`,
+    `apple pear`,
 }
 
 func searchHayStack(opts Options, needle string) SearchResult {
@@ -22,7 +22,7 @@ func searchHayStack(opts Options, needle string) SearchResult {
         defer wg.Done()
         result = <- myFzf.GetResultCannel()
     }()
-    myFzf.Search([]rune("pe a"))
+    myFzf.Search(`pe a`)
     wg.Wait()
     myFzf.End()
     return result
@@ -41,8 +41,8 @@ func TestSearchOrder(t *testing.T) {
         sortCriteria []Criterion
         hits []string
     }{
-        {[]Criterion{ByScore, ByLength},[]string{"apple pear", "pear", "apple", "grape"}},
-        {[]Criterion{}, []string{"apple", "pear", "grape", "apple pear"}},
+        {[]Criterion{ByScore, ByLength},[]string{`apple pear`, `pear`, `apple`, `grape`}},
+        {[]Criterion{}, []string{`apple`, `pear`, `grape`, `apple pear`}},
     }
 
     for _, table := range tables {

@@ -61,18 +61,29 @@ TODO
 
 
 ```go
+package main
+
+import (
+    "fmt"
+    "github.com/reinhrst/fzf-lib"
+    "time"
+)
+
 func main() {
     var options = fzf.DefaultOptions()
     // update any options here
-    var hayStack [][]byte = {[]byte(`hello world`), []byte(`hyo world`)}
-    var myFzf = NewFzf(hayStack, options)
+    var hayStack = []string{`hello world`, `hyo world`}
+    var myFzf = fzf.New(hayStack, options)
+    var result fzf.SearchResult
     go func() {
         for {
-            result <- myFzf.resultChannel
+            result = <- myFzf.GetResultCannel()
             fmt.Printf("%#v", result)
         }
     }()
-    myFzf.Search("^hel owo")
+    myFzf.Search(`^hel owo`)
+    time.Sleep(time.Second)
+    myFzf.End()
 }
 ```
 

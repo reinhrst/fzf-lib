@@ -70,18 +70,18 @@ func init() {
 
 
 // buildPattern builds Pattern object from the given arguments
-func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case, normalize bool, forward bool, runes []rune, sortCriteria []Criterion, patternCache *map[string]*Pattern) *Pattern {
+func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case, normalize bool, forward bool, needle string, sortCriteria []Criterion, patternCache *map[string]*Pattern) *Pattern {
 
 	var asString string
 	if extended {
         // strip spaces from left side, strip spaces from right if not preceded by
         // backslash
-		asString = strings.TrimLeft(string(runes), " ")
+		asString = strings.TrimLeft(needle, " ")
 		for strings.HasSuffix(asString, " ") && !strings.HasSuffix(asString, "\\ ") {
 			asString = asString[:len(asString)-1]
 		}
 	} else {
-		asString = string(runes)
+		asString = needle
 	}
 
 	cached, found := (*patternCache)[asString]

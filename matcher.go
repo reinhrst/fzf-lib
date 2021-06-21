@@ -22,7 +22,7 @@ type MatchRequest struct {
 
 // Matcher is responsible for performing search
 type Matcher struct {
-	patternBuilder func([]rune) *Pattern
+	patternBuilder func(string) *Pattern
 	sort           bool
 	tac            bool
 	eventBox       *util.EventBox
@@ -40,7 +40,7 @@ const (
 )
 
 // NewMatcher returns a new Matcher
-func NewMatcher(patternBuilder func([]rune) *Pattern,
+func NewMatcher(patternBuilder func(string) *Pattern,
 	sort bool, tac bool, eventBox *util.EventBox) *Matcher {
 	partitions := util.Min(numPartitionsMultiplier*runtime.NumCPU(), maxPartitions)
 	return &Matcher{
@@ -235,8 +235,8 @@ func (m *Matcher) scan(request MatchRequest) (*Merger, bool) {
 }
 
 // Reset is called to interrupt/signal the ongoing search
-func (m *Matcher) Reset(chunks []*Chunk, patternRunes []rune, cancel bool, final bool, sort bool, clearCache bool) {
-	pattern := m.patternBuilder(patternRunes)
+func (m *Matcher) Reset(chunks []*Chunk, patternString string, cancel bool, final bool, sort bool, clearCache bool) {
+	pattern := m.patternBuilder(patternString)
 
 	var event util.EventType
 	if cancel {
