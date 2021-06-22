@@ -315,8 +315,8 @@ func (p *Pattern) MatchItem(item *Item, withPos bool, slab *util.Slab) (*Result,
 }
 
 func (p *Pattern) basicMatch(item *Item, withPos bool, slab *util.Slab) (Offset, int, *[]int) {
-	var input []Token
-    input = []Token{{text: &item.text, prefixLength: 0}}
+	var input []*util.Chars
+    input = []*util.Chars{&item.text}
 	if p.fuzzy {
 		return p.iter(p.fuzzyAlgo, input, p.caseSensitive, p.normalize, p.forward, p.text, withPos, slab)
 	}
@@ -324,8 +324,8 @@ func (p *Pattern) basicMatch(item *Item, withPos bool, slab *util.Slab) (Offset,
 }
 
 func (p *Pattern) extendedMatch(item *Item, withPos bool, slab *util.Slab) ([]Offset, int, *[]int) {
-	var input []Token
-    input = []Token{{text: &item.text, prefixLength: 0}}
+	var input []*util.Chars
+    input = []*util.Chars{&item.text}
 	offsets := []Offset{}
 	var totalScore int
 	var allPos *[]int
@@ -369,16 +369,11 @@ func (p *Pattern) extendedMatch(item *Item, withPos bool, slab *util.Slab) ([]Of
 	return offsets, totalScore, allPos
 }
 
-func (p *Pattern) iter(pfun algo.Algo, tokens []Token, caseSensitive bool, normalize bool, forward bool, pattern []rune, withPos bool, slab *util.Slab) (Offset, int, *[]int) {
+func (p *Pattern) iter(pfun algo.Algo, tokens []*util.Chars, caseSensitive bool, normalize bool, forward bool, pattern []rune, withPos bool, slab *util.Slab) (Offset, int, *[]int) {
 	for _, part := range tokens {
-		if res, pos := pfun(caseSensitive, normalize, forward, part.text, pattern, withPos, slab); res.Start >= 0 {
-			sidx := int32(res.Start) + part.prefixLength
-			eidx := int32(res.End) + part.prefixLength
-			if pos != nil {
-				for idx := range *pos {
-					(*pos)[idx] += int(part.prefixLength)
-				}
-			}
+		if res, pos := pfun(caseSensitive, normalize, forward, part, pattern, withPos, slab); res.Start >= 0 {
+			sidx := int32(res.Start)
+			eidx := int32(res.End)
 			return Offset{sidx, eidx}, res.Score, pos
 		}
 	}
