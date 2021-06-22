@@ -8,41 +8,41 @@ import (
 )
 
 type Options struct {
-    // If true, each word (separated by non-escaped spaces) is an independent
-    // searchterm. If false, all spaces are literal
-    Extended bool
-    // if true, default is Fuzzy search (' escapes to make exact search)
-    // if false, default is exact search (' escapes to make fuzzy search)
-    Fuzzy bool
-    // CaseRespect, CaseIgnore or CaseSmart
-    // CaseSmart matches case insensitive if the needle is all lowercase, else case sensitive
-    CaseMode Case
-    // set to False to get fzf --literal behaviour:
-    // "Do not normalize latin script letters for matching."
-    Normalize bool
-    // Array with options from {ByScore, ByLength, ByBegin, ByEnd}.
-    // Metches will first be sorted by the first element, ties will be sorted by
-    // second element, etc.
-    // ByScore: Each match is scored (see algo file for more info), higher score 
-    // comes first
-    // ByLength: Shorter match wins
-    // ByBegin: Match closer to begin of string wins
-    // ByEnd: Match closer to end of string wins
-    //
-    // If all methods give equal score (including when the Sort slice is empty),
-    // the result is sorted by HayIndex, the order in which they appeared in
-    // the input.
+	// If true, each word (separated by non-escaped spaces) is an independent
+	// searchterm. If false, all spaces are literal
+	Extended bool
+	// if true, default is Fuzzy search (' escapes to make exact search)
+	// if false, default is exact search (' escapes to make fuzzy search)
+	Fuzzy bool
+	// CaseRespect, CaseIgnore or CaseSmart
+	// CaseSmart matches case insensitive if the needle is all lowercase, else case sensitive
+	CaseMode Case
+	// set to False to get fzf --literal behaviour:
+	// "Do not normalize latin script letters for matching."
+	Normalize bool
+	// Array with options from {ByScore, ByLength, ByBegin, ByEnd}.
+	// Metches will first be sorted by the first element, ties will be sorted by
+	// second element, etc.
+	// ByScore: Each match is scored (see algo file for more info), higher score
+	// comes first
+	// ByLength: Shorter match wins
+	// ByBegin: Match closer to begin of string wins
+	// ByEnd: Match closer to end of string wins
+	//
+	// If all methods give equal score (including when the Sort slice is empty),
+	// the result is sorted by HayIndex, the order in which they appeared in
+	// the input.
 	Sort []Criterion
 }
 
 func DefaultOptions() Options {
-    return Options{
-        Extended: true,
-        Fuzzy: true,
-        CaseMode: CaseSmart,
-        Normalize: true,
-        Sort: []Criterion{ByScore, ByLength},
-    }
+	return Options{
+		Extended:  true,
+		Fuzzy:     true,
+		CaseMode:  CaseSmart,
+		Normalize: true,
+		Sort:      []Criterion{ByScore, ByLength},
+	}
 }
 
 type SearchResult struct {
@@ -59,10 +59,10 @@ type MatchResult struct {
 }
 
 type Fzf struct {
-	eventBox     *util.EventBox
-	matcher      *Matcher
-	chunkList    *ChunkList
-	slab         *util.Slab
+	eventBox      *util.EventBox
+	matcher       *Matcher
+	chunkList     *ChunkList
+	slab          *util.Slab
 	resultChannel chan SearchResult
 }
 
@@ -91,12 +91,12 @@ func New(hayStack []string, opts Options) *Fzf {
 			break
 		}
 	}
-    patternCache := make(map[string]*Pattern)
+	patternCache := make(map[string]*Pattern)
 	patternBuilder := func(needle string) *Pattern {
 		return BuildPattern(
 			opts.Fuzzy, algo.FuzzyMatchV2, opts.Extended,
-            opts.CaseMode, opts.Normalize, forward, needle, opts.Sort,
-            &patternCache)
+			opts.CaseMode, opts.Normalize, forward, needle, opts.Sort,
+			&patternCache)
 	}
 	matcher := NewMatcher(patternBuilder, true, false, eventBox)
 	resultChannel := make(chan SearchResult)
@@ -118,7 +118,7 @@ func (fzf *Fzf) start() {
 }
 
 func (fzf *Fzf) GetResultCannel() <-chan SearchResult {
-    return fzf.resultChannel
+	return fzf.resultChannel
 }
 
 func (fzf *Fzf) loop() {
@@ -170,13 +170,13 @@ func (fzf *Fzf) loop() {
 	}
 }
 
-func (fzf *Fzf) Search(needle string){
+func (fzf *Fzf) Search(needle string) {
 	snapshot, _ := fzf.chunkList.Snapshot()
-    fzf.matcher.Reset(snapshot, needle, false, false, true, false)
+	fzf.matcher.Reset(snapshot, needle, false, false, true, false)
 }
 
 func (fzf *Fzf) End() {
-    fzf.matcher.reqBox.Set(EvtQuit, nil)
-    fzf.eventBox.Set(EvtQuit, nil)
-    close(fzf.resultChannel)
+	fzf.matcher.reqBox.Set(EvtQuit, nil)
+	fzf.eventBox.Set(EvtQuit, nil)
+	close(fzf.resultChannel)
 }

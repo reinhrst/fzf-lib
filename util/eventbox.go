@@ -19,7 +19,7 @@ type EventBox struct {
 func NewEventBox() *EventBox {
 	return &EventBox{
 		events: make(Events),
-        cond:   &sync.Cond{L: &sync.Mutex{}},
+		cond:   &sync.Cond{L: &sync.Mutex{}},
 		ignore: make(map[EventType]bool)}
 }
 

@@ -2,7 +2,6 @@ package fzf
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/reinhrst/fzf-lib/algo"
@@ -56,26 +55,16 @@ type Pattern struct {
 	sortable      bool
 	cacheKey      string
 	procFun       map[termType]algo.Algo
-    sortCriteria []Criterion
-
+	sortCriteria  []Criterion
 }
-
-var (
-	_splitRegex   *regexp.Regexp
-)
-
-func init() {
-	_splitRegex = regexp.MustCompile(" +")
-}
-
 
 // buildPattern builds Pattern object from the given arguments
 func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case, normalize bool, forward bool, needle string, sortCriteria []Criterion, patternCache *map[string]*Pattern) *Pattern {
 
 	var asString string
 	if extended {
-        // strip spaces from left side, strip spaces from right if not preceded by
-        // backslash
+		// strip spaces from left side, strip spaces from right if not preceded by
+		// backslash
 		asString = strings.TrimLeft(needle, " ")
 		for strings.HasSuffix(asString, " ") && !strings.HasSuffix(asString, "\\ ") {
 			asString = asString[:len(asString)-1]
@@ -134,7 +123,7 @@ func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case,
 		text:          []rune(asString),
 		termSets:      termSets,
 		sortable:      sortable,
-        sortCriteria:  sortCriteria,
+		sortCriteria:  sortCriteria,
 		procFun:       make(map[termType]algo.Algo)}
 
 	ptr.cacheKey = ptr.buildCacheKey()
@@ -150,7 +139,13 @@ func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case,
 
 func parseTerms(fuzzy bool, caseMode Case, normalize bool, str string) []termSet {
 	str = strings.Replace(str, "\\ ", "\t", -1)
-	tokens := _splitRegex.Split(str, -1)
+	all_tokens := strings.Split(str, " ")
+	var tokens []string
+	for _, token := range all_tokens {
+		if token != "" {
+			tokens = append(tokens, token)
+		}
+	}
 	sets := []termSet{}
 	set := termSet{}
 	switchSet := false
@@ -264,8 +259,8 @@ func (p *Pattern) CacheKey() string {
 func (p *Pattern) Match(chunk *Chunk, slab *util.Slab, chunkCache *ChunkCache) []Result {
 	// ChunkCache: Exact match
 	cacheKey := p.CacheKey()
-    if cached := chunkCache.Lookup(chunk, cacheKey); cached != nil {
-        return cached
+	if cached := chunkCache.Lookup(chunk, cacheKey); cached != nil {
+		return cached
 	}
 
 	// Prefix/suffix cache
@@ -273,7 +268,7 @@ func (p *Pattern) Match(chunk *Chunk, slab *util.Slab, chunkCache *ChunkCache) [
 
 	matches := p.matchChunk(chunk, space, slab)
 
-    chunkCache.Add(chunk, cacheKey, matches)
+	chunkCache.Add(chunk, cacheKey, matches)
 	return matches
 }
 
@@ -316,7 +311,7 @@ func (p *Pattern) MatchItem(item *Item, withPos bool, slab *util.Slab) (*Result,
 
 func (p *Pattern) basicMatch(item *Item, withPos bool, slab *util.Slab) (Offset, int, *[]int) {
 	var input []*util.Chars
-    input = []*util.Chars{&item.text}
+	input = []*util.Chars{&item.text}
 	if p.fuzzy {
 		return p.iter(p.fuzzyAlgo, input, p.caseSensitive, p.normalize, p.forward, p.text, withPos, slab)
 	}
@@ -325,7 +320,7 @@ func (p *Pattern) basicMatch(item *Item, withPos bool, slab *util.Slab) (Offset,
 
 func (p *Pattern) extendedMatch(item *Item, withPos bool, slab *util.Slab) ([]Offset, int, *[]int) {
 	var input []*util.Chars
-    input = []*util.Chars{&item.text}
+	input = []*util.Chars{&item.text}
 	offsets := []Offset{}
 	var totalScore int
 	var allPos *[]int

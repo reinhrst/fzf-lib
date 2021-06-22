@@ -2,11 +2,10 @@ package fzf
 
 import (
 	"fmt"
-	"runtime"
+	"log"
 	"sort"
 	"sync"
 	"time"
-	"log"
 
 	"github.com/reinhrst/fzf-lib/util"
 )
@@ -30,19 +29,19 @@ type Matcher struct {
 	partitions     int
 	slab           []*util.Slab
 	mergerCache    map[string]*Merger
-	chunkCache   ChunkCache
+	chunkCache     ChunkCache
 }
 
 const (
 	reqRetry util.EventType = iota
 	reqReset
-    reqQuit
+	reqQuit
 )
 
 // NewMatcher returns a new Matcher
 func NewMatcher(patternBuilder func(string) *Pattern,
 	sort bool, tac bool, eventBox *util.EventBox) *Matcher {
-	partitions := util.Min(numPartitionsMultiplier*runtime.NumCPU(), maxPartitions)
+	partitions := 8
 	return &Matcher{
 		patternBuilder: patternBuilder,
 		sort:           sort,
@@ -52,8 +51,8 @@ func NewMatcher(patternBuilder func(string) *Pattern,
 		partitions:     partitions,
 		slab:           make([]*util.Slab, partitions),
 		mergerCache:    make(map[string]*Merger),
-        chunkCache:     NewChunkCache(),
-}
+		chunkCache:     NewChunkCache(),
+	}
 }
 
 // Loop puts Matcher in action
@@ -61,7 +60,7 @@ func (m *Matcher) Loop() {
 	prevCount := 0
 	for {
 		var request MatchRequest
-        quit := false
+		quit := false
 		m.reqBox.Wait(func(events *util.Events) {
 			for evt, val := range *events {
 				switch evt {
@@ -78,11 +77,10 @@ func (m *Matcher) Loop() {
 			events.Clear()
 		})
 
-    if quit {
-        log.Println("Quiting matcher loop")
-        break
-    }
-
+		if quit {
+			log.Println("Quiting matcher loop")
+			break
+		}
 
 		if request.sort != m.sort || request.clearCache {
 			m.sort = request.sort
