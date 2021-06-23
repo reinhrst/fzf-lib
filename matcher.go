@@ -88,7 +88,7 @@ func (m *Matcher) Loop() {
 		}
 
 		// Restart search
-		patternString := request.pattern.AsString()
+		patternString := request.pattern.originalText
 		var merger *Merger
 		cancelled := false
 		count := CountItems(request.chunks)
