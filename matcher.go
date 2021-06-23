@@ -2,7 +2,7 @@ package fzf
 
 import (
 	"fmt"
-	"log"
+	"runtime"
 	"sort"
 	"sync"
 	"time"
@@ -41,7 +41,7 @@ const (
 // NewMatcher returns a new Matcher
 func NewMatcher(patternBuilder func(string) *Pattern,
 	sort bool, tac bool, eventBox *util.EventBox) *Matcher {
-	partitions := 8
+	partitions := util.Min(numPartitionsMultiplier*runtime.NumCPU(), maxPartitions)
 	return &Matcher{
 		patternBuilder: patternBuilder,
 		sort:           sort,
@@ -78,7 +78,6 @@ func (m *Matcher) Loop() {
 		})
 
 		if quit {
-			log.Println("Quiting matcher loop")
 			break
 		}
 
@@ -155,7 +154,7 @@ func (m *Matcher) scan(request MatchRequest) (*Merger, bool) {
 	}
 	pattern := request.pattern
 	if pattern.IsEmpty() {
-		return PassMerger(&request.chunks, m.tac), false
+		return PassMerger(pattern, &request.chunks, m.tac), false
 	}
 
 	cancelled := util.NewAtomicBool(false)

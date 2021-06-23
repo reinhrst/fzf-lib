@@ -103,6 +103,8 @@ func main() {
 }
 ```
 
+Note: If the channel is not being read, searching will block
+
 The following options can be set
 ```go
     // If true, each word (separated by non-escaped spaces) is an independent

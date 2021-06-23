@@ -22,7 +22,7 @@ func searchHayStack(opts Options, needle string) SearchResult {
 		defer wg.Done()
 		result = <-myFzf.GetResultCannel()
 	}()
-	myFzf.Search(`pe a`)
+	myFzf.Search(needle)
 	wg.Wait()
 	myFzf.End()
 	return result
@@ -56,5 +56,19 @@ func TestSearchOrder(t *testing.T) {
 			t.Errorf("Results do not match, expected %+v, gotten %+v\n%#v\n%#v\n",
 				table.hits, keys, table, result)
 		}
+	}
+}
+
+func TestEmptySearch(t *testing.T) {
+	for _, searchstring := range []string{"", " ", " ^ ", " ' ", "  ", "   "} {
+		result := searchHayStack(DefaultOptions(), searchstring)
+		if result.Needle != searchstring {
+			t.Errorf("Result.Needle is not original searchstring: %#v != %#v",
+				result.Needle, searchstring)
+		}
+		if len(result.Matches) != 4 {
+			t.Errorf("Expected 4 results, got %d", len(result.Matches))
+		}
+
 	}
 }

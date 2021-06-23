@@ -141,15 +141,15 @@ func (fzf *Fzf) loop() {
 			events.Clear()
 		})
 		if quit {
-			log.Println("Quiting fzf loop")
 			break
 		}
 
 		var matchResults []MatchResult
 		for i := 0; i < merger.Length(); i++ {
-			item := merger.Get(i).item
-			pos := merger.Get(i).positions
-			score := merger.Get(i).score
+			result := merger.Get(i)
+			item := result.item
+			pos := result.positions
+			score := result.score
 			matchResults = append(matchResults, MatchResult{
 				Key:       item.text.ToString(),
 				HayIndex:  item.Index(),
@@ -159,14 +159,10 @@ func (fzf *Fzf) loop() {
 		}
 
 		result := SearchResult{
-			Needle:  merger.pattern.cacheKey,
+			Needle:  merger.pattern.orignalText,
 			Matches: matchResults,
 		}
-		select {
-		case fzf.resultChannel <- result:
-		default:
-			log.Println("No listener on the channel")
-		}
+		fzf.resultChannel <- result
 	}
 }
 

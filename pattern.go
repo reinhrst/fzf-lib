@@ -51,6 +51,7 @@ type Pattern struct {
 	normalize     bool
 	forward       bool
 	text          []rune
+	orignalText   string
 	termSets      []termSet
 	sortable      bool
 	cacheKey      string
@@ -123,6 +124,7 @@ func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case,
 		text:          []rune(asString),
 		termSets:      termSets,
 		sortable:      sortable,
+		orignalText:   needle,
 		sortCriteria:  sortCriteria,
 		procFun:       make(map[termType]algo.Algo)}
 

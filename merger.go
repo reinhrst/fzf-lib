@@ -21,9 +21,9 @@ type Merger struct {
 
 // PassMerger returns a new Merger that simply returns the items in the
 // original order
-func PassMerger(chunks *[]*Chunk, tac bool) *Merger {
+func PassMerger(pattern *Pattern, chunks *[]*Chunk, tac bool) *Merger {
 	mg := Merger{
-		pattern: nil,
+		pattern: pattern,
 		chunks:  chunks,
 		tac:     tac,
 		count:   0}
@@ -65,7 +65,11 @@ func (mg *Merger) Get(idx int) Result {
 			idx = mg.count - idx - 1
 		}
 		chunk := (*mg.chunks)[idx/chunkSize]
-		return Result{item: &chunk.items[idx%chunkSize]}
+		return Result{
+			item:      &chunk.items[idx%chunkSize],
+			score:     0,
+			positions: &[]int{},
+		}
 	}
 
 	if mg.sorted {
