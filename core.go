@@ -5,6 +5,10 @@ import (
 	"github.com/reinhrst/fzf-lib/algo"
 	"github.com/reinhrst/fzf-lib/util"
 	"log"
+	"math"      // needed only for benchmark
+	"math/rand" // needed only for benchmark
+	"strings"   // needed only for benchmark
+	"time"      // needed only for benchmark
 )
 
 type Options struct {
@@ -180,4 +184,38 @@ func (fzf *Fzf) End() {
 	fzf.matcher.reqBox.Set(EvtQuit, nil)
 	fzf.eventBox.Set(EvtQuit, nil)
 	close(fzf.resultChannel)
+}
+
+// A function that creates a fully internal benchmark, that can be compared in different environments.
+// Note that the benchmark is super basic; use the benchmarks in the test suite
+// if you can
+func RunBasicBenchmark() {
+	fruits := []string{`Abiu`, `Açaí`, `Acerola`, `Ackee`, `African cucumber`, `Apple`, `Apricot`, `Avocado`, `Banana`, `Bilberry`, `Blackberry`, `Blackcurrant`, `Black sapote`, `Blueberry`, `Boysenberry`, `Breadfruit`, `Buddha's hand (fingered citron)`, `Cactus pear`, `Canistel`, `Cempedak`, `Cherimoya (Custard Apple)`, `Cherry`, `Chico fruit`, `Cloudberry`, `Coco De Mer`, `Coconut`, `Crab apple`, `Cranberry`, `Currant`, `Damson`, `Date`, `Dragonfruit (or Pitaya)`, `Durian`, `Egg Fruit`, `Elderberry`, `Feijoa`, `Fig`, `Finger Lime (or Caviar Lime)`, `Goji berry`, `Gooseberry`, `Grape`, `Raisin`, `Grapefruit`, `Grewia asiatica (phalsa or falsa)`, `Guava`, `Hala Fruit`, `Honeyberry`, `Huckleberry`, `Jabuticaba`, `Jackfruit`, `Jambul`, `Japanese plum`, `Jostaberry`, `Jujube`, `Juniper berry`, `Kaffir Lime`, `Kiwano (horned melon)`, `Kiwifruit`, `Kumquat`, `Lemon`, `Lime`, `Loganberry`, `Longan`, `Loquat`, `Lulo`, `Lychee`, `Magellan Barberry`, `Mamey Apple`, `Mamey Sapote`, `Mango`, `Mangosteen`, `Marionberry`, `Melon`, `Cantaloupe`, `Galia melon`, `Honeydew`, `Mouse melon`, `Musk melon`, `Watermelon`, `Miracle fruit`, `Monstera deliciosa`, `Mulberry`, `Nance`, `Nectarine`, `Orange`, `Blood orange`, `Clementine`, `Mandarine`, `Tangerine`, `Papaya`, `Passionfruit`, `Peach`, `Pear`, `Persimmon`, `Plantain`, `Plum`, `Prune (dried plum)`, `Pineapple`, `Pineberry`, `Plumcot (or Pluot)`, `Pomegranate`, `Pomelo`, `Purple mangosteen`, `Quince`, `Raspberry`, `Salmonberry`, `Rambutan (or Mamin Chino)`, `Redcurrant`, `Rose apple`, `Salal berry`, `Salak`, `Satsuma`, `Shine Muscat or Vitis Vinifera`, `Sloe or Hawthorn Berry`, `Soursop`, `Star apple`, `Star fruit`, `Strawberry`, `Surinam cherry`, `Tamarillo`, `Tamarind`, `Tangelo`, `Tayberry`, `Tomato`, `Ugli fruit`, `White currant`, `White sapote`, `Yuzu`}
+	for i := 10; i < 20; i++ {
+		randomizer := rand.New(rand.NewSource(12345))
+		numberlines := int(math.Pow(2, float64(i)))
+		sentences := produceSentences(fruits, numberlines, randomizer)
+		myFzf := New(sentences, DefaultOptions())
+		starttime := time.Now()
+		myFzf.Search(`hello world`)
+		result, _ := <-myFzf.GetResultCannel()
+		endtime := time.Now()
+		myFzf.End()
+		fmt.Printf("Run of %d sentences took %.3f ms (%d results)\n",
+			numberlines, float64(endtime.Sub(starttime).Microseconds())/1000,
+			len(result.Matches))
+	}
+}
+
+func produceSentences(fruits []string, number int, randomizer *rand.Rand) []string {
+	var result []string
+	for len(result) < number {
+		nrwords := 3 + randomizer.Intn(10)
+		var line []string
+		for len(line) < nrwords {
+			line = append(line, fruits[rand.Intn(len(fruits))])
+		}
+		result = append(result, strings.Join(line, " "))
+	}
+	return result
 }

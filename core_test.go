@@ -138,9 +138,13 @@ func benchmarkQuotes(nr_items int, b *testing.B) {
 }
 
 func BenchmarkQuotes(b *testing.B) {
-	for i := 10; i < 20; i++ {
+	for i := 10; i <= 25; i++ {
 		nr_quotes := int(math.Pow(2, float64(i)))
 		b.Run(fmt.Sprintf("%d quotes", nr_quotes),
 			func(b *testing.B) { benchmarkQuotes(nr_quotes, b) })
 	}
+}
+
+func TestBasicBenchmark(t *testing.T) {
+	RunBasicBenchmark()
 }
