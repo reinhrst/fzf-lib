@@ -51,10 +51,10 @@ type Pattern struct {
 	normalize     bool
 	forward       bool
 	text          []rune
-	originalText   string
+	originalText  string
 	termSets      []termSet
 	sortable      bool
-    cacheable     bool
+	cacheable     bool
 	cacheKey      string
 	procFun       map[termType]algo.Algo
 	sortCriteria  []Criterion
@@ -62,7 +62,7 @@ type Pattern struct {
 
 // buildPattern builds Pattern object from the given arguments
 func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case, normalize bool, forward bool, needle string, sortCriteria []Criterion, patternCache *map[string]*Pattern) *Pattern {
-    cacheable := true
+	cacheable := true
 
 	var asString string
 	if extended {
@@ -98,7 +98,7 @@ func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case,
 				// If the query contains inverse search terms or OR operators,
 				// we cannot cache the search scope
 				if !cacheable || idx > 0 || term.inv || fuzzy && term.typ != termFuzzy || !fuzzy && term.typ != termExact {
-                    cacheable = false
+					cacheable = false
 					if sortable {
 						// Can't break until we see at least one non-inverse term
 						break Loop
@@ -127,7 +127,7 @@ func BuildPattern(fuzzy bool, fuzzyAlgo algo.Algo, extended bool, caseMode Case,
 		text:          []rune(asString),
 		termSets:      termSets,
 		sortable:      sortable,
-        cacheable:     cacheable,
+		cacheable:     cacheable,
 		originalText:  needle,
 		sortCriteria:  sortCriteria,
 		procFun:       make(map[termType]algo.Algo)}
@@ -265,10 +265,10 @@ func (p *Pattern) CacheKey() string {
 func (p *Pattern) Match(chunk *Chunk, slab *util.Slab, chunkCache *ChunkCache) []Result {
 	// ChunkCache: Exact match
 	cacheKey := p.CacheKey()
-    if p.cacheable {
-        if cached := chunkCache.Lookup(chunk, cacheKey); cached != nil {
-            return cached
-        }
+	if p.cacheable {
+		if cached := chunkCache.Lookup(chunk, cacheKey); cached != nil {
+			return cached
+		}
 	}
 
 	// Prefix/suffix cache
@@ -276,9 +276,9 @@ func (p *Pattern) Match(chunk *Chunk, slab *util.Slab, chunkCache *ChunkCache) [
 
 	matches := p.matchChunk(chunk, space, slab)
 
-    if p.cacheable {
-        chunkCache.Add(chunk, cacheKey, matches)
-    }
+	if p.cacheable {
+		chunkCache.Add(chunk, cacheKey, matches)
+	}
 	return matches
 }
 

@@ -124,7 +124,7 @@ func (fzf *Fzf) GetResultCannel() <-chan SearchResult {
 func (fzf *Fzf) loop() {
 	for {
 		var merger *Merger
-        var progress = false
+		var progress = false
 		quit := false
 		fzf.eventBox.Wait(func(events *util.Events) {
 			for evt, val := range *events {
@@ -133,7 +133,7 @@ func (fzf *Fzf) loop() {
 					merger = val.(*Merger)
 				case EvtSearchProgress:
 					log.Println("search progress, ignoring for now")
-                    progress = true
+					progress = true
 				case EvtQuit:
 					quit = true
 				default:
@@ -142,9 +142,9 @@ func (fzf *Fzf) loop() {
 			}
 			events.Clear()
 		})
-        if progress && merger == nil{
-            continue // TODO do something useful here
-        }
+		if progress && merger == nil {
+			continue // TODO do something useful here
+		}
 		if quit {
 			break
 		}
