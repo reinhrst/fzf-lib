@@ -156,4 +156,4 @@ I still have a dream that one day I'll be able to have fans pay for my coffees a
 
 
 [1]: https://github.com/junegunn/fzf
-[2]: https://blog.claude.nl/tech/making-fzf-into-a-golang-library/
+[2]: https://blog.claude.nl/tech/making-fzf-into-a-golang-library-fzf-lib/
