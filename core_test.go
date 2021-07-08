@@ -129,11 +129,12 @@ func benchmarkQuotes(nr_items int, b *testing.B) {
 	}
 	quotes = quotes[:nr_items]
 	opts := DefaultOptions()
-	myFzf := New(quotes, opts)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+        myFzf := New(quotes, opts)
 		myFzf.Search(`hello world`)
 		<-myFzf.GetResultCannel()
+        myFzf.End()
 	}
 }
 

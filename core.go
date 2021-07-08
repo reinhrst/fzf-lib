@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/reinhrst/fzf-lib/algo"
 	"github.com/reinhrst/fzf-lib/util"
-	"log"
 	"math"      // needed only for benchmark
 	"math/rand" // needed only for benchmark
 	"strings"   // needed only for benchmark
@@ -136,7 +135,7 @@ func (fzf *Fzf) loop() {
 				case EvtSearchFin:
 					merger = val.(*Merger)
 				case EvtSearchProgress:
-					log.Println("search progress, ignoring for now")
+					// log.Println("search progress, ignoring for now")
 					progress = true
 				case EvtQuit:
 					quit = true
@@ -196,14 +195,16 @@ func RunBasicBenchmark() {
 		numberlines := int(math.Pow(2, float64(i)))
 		sentences := produceSentences(fruits, numberlines, randomizer)
 		myFzf := New(sentences, DefaultOptions())
-		starttime := time.Now()
-		myFzf.Search(`hello world`)
-		result, _ := <-myFzf.GetResultCannel()
-		endtime := time.Now()
-		myFzf.End()
-		fmt.Printf("Run of %d sentences took %.3f ms (%d results)\n",
-			numberlines, float64(endtime.Sub(starttime).Microseconds())/1000,
-			len(result.Matches))
+        for _, needle := range []string{`hello world`, `green beans`, `i 'll be back`} {
+            starttime := time.Now()
+            myFzf.Search(needle)
+            result, _ := <-myFzf.GetResultCannel()
+            endtime := time.Now()
+            fmt.Printf("Run of %d sentences took %.3f ms (%d results)\n",
+                len(sentences), float64(endtime.Sub(starttime).Microseconds())/1000,
+                len(result.Matches))
+        }
+        myFzf.End()
 	}
 }
 

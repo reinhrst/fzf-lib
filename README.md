@@ -1,47 +1,7 @@
 This repo is an attempt to create a workable go-library from the amazing [fzf][1] package
 from Junegunn Choi.
-The original package contains a number of parts (and I'm sure my description does not do justice to what it *actually* is):
 
-- A fuzzyfinder (having a list of strings, and a search string, returns those strings that match the search string (according to some fuzzy-find rules), ordered in such a way that the best match comes first)
-- A command line interface to this fuzzy-finder, that allows for many customizations
-- A ncurses/terminal integration that allows interactive fuzzy-finding, seeing previews, hotkeys, etc
-- A VIM plugin, that allows fzf to work within (neo)vim
-
-The author of this repo has been a fervent fzf fan for many years, and thinks it's by far the best fuzzy finder out there.
-
-A limitation of fzf is that it's written as a full program.
-Over the years I've found myself a number of times looking for a way to integrate fzf into my own programs and (non-terminal) tools.
-Fzf's original author has decided not to create a library version of fzf ([see his reasons][2] -- all the right reasons as far as I'm concerned), and rather suggests [running the fzf executable through a spawned process][3].
-In my own programs, I've alternated between using exactly that solution, and baking my own extremely simple version of a fuzzy finder (which never feels as good as the original, and doesn't even get to play in the ballpark next door when it comes to speed).
-
-The goal of this repository is to make a version of the fuzzyfinder part of fzf (stripping out as much as possible of the other stuff) and offer it as a go library.
-The reasons to go this (above running fzf in a spawned process) are:
-
-- Even though fzf is blazingly fast, when spawning a new process, piping in a long list of options and get back the results for a certain filter, it does take *some* time. This means it feels less than snappy if one is using this as a live-typing filter.
-- The spawned process method unfortunately does not give access to exactly which character positions where matched. The live-typing-searches when running fzf interactively in the terminal show feedback on *exactly which* letters in the strings were matched -- there is no way to create this without this position information.
-- There are environments when you cannot run a spawned fzf process -- for instance if you're in a webpage (yes, this project was sparked by an interest to compile fzf to Web Assembly and use clientside in a webpage)
-
-It should be considered that the fzf code is super fast, has been thouroughly tested (both by automatic tests, and by millions of users using it all over the globe), and uses a simple and intuitive syntax that has never failed me (and is burned in my musscle memory).
-Even though it was tempting to implement the fzf fuzzyfinder part from scratch, I opted in the end (because of the reasons in the last sentence) to take the fzf project and strip out all the parts that are not necessary.
-The hope is that this library will maintain the speed and accuracy of the original implementation, while working as a full library.
-Since quite some code had to be rewriten to get the library to work(the original fzf author [notes][2] that one things that might be needed before fzf can be used as a library is to consider "how to revise the code that was written with the assumption that fzf is a short-lived, one-off process") , only time will tell if I succeeded in this goal :).
-
-The resulting library:
-- allows initing a fzf stuct with a list of strings and search options (note that fzf contains very many (commandline) options, most of them are to control other things than the actual search.
-- A `Search` method which starts a search. Results are returned through a channel. If a new `Search` is started before the old returns, the old search is cancelled.
-- The data on the channel is either a SearchProgress (if the search takes more than 200ms), or a SearchResult
-- A SearchResult is a struct with the SearchKey and Options used, and a list of MatchResults:
-    - the string matched
-    - the index of the matched string (in the original list of strings)
-    - the positions of the letters in the string that were matched
-    - the bonus (or score) of the match
-- An `End` method. Calling this method is necessary so that the internal go routines are stopped and the Fzf object (which may be quite large since it caches all strings) can be removed from memory.
-
-For now, any change in the list of strings (or search options) means that a new fzf object should be created.
-
-
-I should note that this is my first Go module, so I'm sure to be making many noob mistakes; feel free to point them out in the issue tracker :).
-Obviously also bugs and other issues are welcome.
+For more information on the why and how, see [this blogpost][2].
 
 ### Performance
 The goal of this library is to match the performance of the original fzf.
@@ -50,13 +10,37 @@ One of the places where a performance-changing change has been made is in return
 In the original fzf, only the matching lines are returned, and only when displaying these in the console the exact characters are retrieved.
 This is obviously faster if one has a complex match that returns thousands of results where we only display a couple in the terminal.
 For now fzf-lib always returns machting character positions for all matches.
+Benchmarks shows that returning the positions has a 5-10% speed cost; considering the extreme speed of the fzf code, I hardly think anyone will miss these 5-10 percents.
 If this turns out to be a bottleneck, in the future we may consider alternative options.
 
-Another item that might be a problem (although I doubt it)...
-The original fzf wants `[][]byte` to build up its words to search in and then `[]rune` for searching. 
-This wrapper makes all input and output in `string`.
-Converting should not take much (if any) time, but maybe for very very large datasets there may be a small hit
+The testing suite contains a benchmark, that fuzzy searches a string in a (repeating) list of quotes of different lengths. On my Macbook Pro M1, I got the following timings (this is from the moment a `Search("hello world")` command is given, until the full result is returned):
 
+| Number of lines to search in | time until result (ms) |
+|----------|------|
+|1,024|0.709|
+|2,048|1.140|
+|4,096|2.483|
+|8,192|4.787|
+|16,384|6.814|
+|32,768|12.86|
+|65,536|24.92|
+|131,072|48.95|
+|262,144|95.65|
+|524,288|190.9|
+|1,048,576|380.1|
+|2,097,152|767.5 (0.7s)|
+|4,194,304|1,577 (1.5s)|
+|8,388,608|3,173 (3s)|
+|16,777,216|6,588 (6.5s)|
+|33,554,432|33,098 (33s)|
+
+It is hard to properly compare this to `fzf --filter`, since it's not clear how much is overhead / parsing the data, etc.
+However the results are in the same order; you can see more info on [my blog][2].
+Obviously the results depend a lot on system and exact use, however I do think it's fair to say that up until 100k strings to search in, you should have a performance that will work for updating-the-results-while-typing, especially since that will have caching that was not taken into account here.
+
+Note: There is also a RunBasicBenchmark function in the exported library.
+This is there so that some benchmarks can be run when the library is imported into another package.
+Since there are many transpilers for Go, this function may be used to compare pre and post transpile performance.
 
 ### Installation
 
@@ -81,31 +65,20 @@ func main() {
     var hayStack = []string{`hello world`, `hyo world`}
     var myFzf = fzf.New(hayStack, options)
     var result fzf.SearchResult
-    wg := sync.WaitGroup{}
-    wg.Add(1)
-    go func() {
-        defer wg.Done()
-        outputs := 2
-        for {
-            result = <- myFzf.GetResultCannel()
-            fmt.Printf("%#v", result)
-            outputs--
-            if outputs == 0 {
-                break
-            }
-        }
-    }()
     myFzf.Search(`^hel owo`)
+    result = <- myFzf.GetResultCannel()
+    fmt.Printf("%#v", result)
     time.Sleep(200 * time.Millisecond)
     myFzf.Search(`^hy owo`)
-    wg.Wait()
-    myFzf.End() // Note: not necessary since end of program
+    result = <- myFzf.GetResultCannel()
+    fmt.Printf("%#v", result)
+    myFzf.End() // Note: not strictly necessary since end of program
 }
 ```
 
-Note: If the channel is not being read, searching will block
+Note: If the channel is not being read, the search go routine will block
 
-The following options can be set
+The following options can be set (most are 1-on-1 matches to fzf commandline optioens with the same name
 ```go
     // If true, each word (separated by non-escaped spaces) is an independent
     // searchterm. If false, all spaces are literal
@@ -156,12 +129,26 @@ func DefaultOptions() Options {
 
 #### Where are all other useful options
 The idea is that most other useful options in fzf cli are easy to build in your client program.
-Things like previews, keybindings, and _nth_ item for parsing should be handled by the client code.
-Just give the string to match to fzf-lib, and keep your own array with the data you want to show/preview/return and use the index of the matched items to retrieve the full item.
-The idea was only to include the items that have to do with _searching and matching_ in this library.
-If you feel that I missed an important option, feel free to file an issue.
+Please see [this blog post][2] for more information.
+
+#### Why does this look nothing like a proper golang module/library
+Quite honestly, because this is my first Go project that I'm working on.
+I appreciate any feedback on how to make it better.
+
+
+#### What version of fzf is this code based on
+The code was cloned from the fzf master branch on 8 June 2021, latest commit being `7191ebb615f5d6ebbf51d598d8ec853a65e2274d`.
+This means that it's basically version `0.27.2`, with some bug fixes.
+Fzf follows its own version numbering scheme, where we creep up on v1.0 for a production ready release.
+The old git tags (with fzf releases) have been removed from the github repository.
+
+#### What is still missing
+The wishlist for v1.0 is (in addition to extra (stress)tests.
+
+#### Appreciation / Thank You's / Coffee / Beer
+If you like the project, I always appeciate feedback (on [my blog][2]), in the issues or by starring this repository.
+I still have a dream that one day I'll be able to have fans pay for my coffees and beers; when that time comes, you'll find a button here!
 
 
 [1]: https://github.com/junegunn/fzf
-[2]: https://github.com/junegunn/fzf/pull/1053#issuecomment-330024275
-[3]: https://junegunn.kr/2016/02/using-fzf-in-your-program
+[2]: https://blog.claude.nl/tech/making-fzf-into-a-golang-library/
