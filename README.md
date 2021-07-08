@@ -143,7 +143,12 @@ Fzf follows its own version numbering scheme, where we creep up on v1.0 for a pr
 The old git tags (with fzf releases) have been removed from the github repository.
 
 #### What is still missing
-The wishlist for v1.0 is (in addition to extra (stress)tests.
+The wishlist for v1.0 is (in addition to extra (stress)tests):
+
+- Send SearchProgess messages on the result channel if the search takes more than 200ms, so that a progress bar can be shown
+- See if we can automatically call `myFzf.End()` when the item goes out of scope.
+- Allow selection of algorithm v1, in case someone would want that.
+- Probably some work to make this act nicely in the Go ecosystem.
 
 #### Appreciation / Thank You's / Coffee / Beer
 If you like the project, I always appeciate feedback (on [my blog][2]), in the issues or by starring this repository.
