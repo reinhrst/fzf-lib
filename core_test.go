@@ -21,7 +21,7 @@ func searchHayStack(opts Options, needles []string) []SearchResult {
 	var results []SearchResult
 	for _, needle := range needles {
 		myFzf.Search(needle)
-		results = append(results, <-myFzf.GetResultCannel())
+		results = append(results, <-myFzf.GetResultChannel())
 	}
 	myFzf.End()
 	return results
@@ -108,9 +108,9 @@ func TestQuotes(t *testing.T) {
 	myFzf := New(quotes, opts)
 	var result SearchResult
 	myFzf.Search(`hell`)
-	result = <-myFzf.GetResultCannel()
+	result = <-myFzf.GetResultChannel()
 	myFzf.Search(`'hell`)
-	result = <-myFzf.GetResultCannel()
+	result = <-myFzf.GetResultChannel()
 	if len(result.Matches) != 1 {
 		t.Errorf("Expected 1 result, got %d", len(result.Matches))
 	}
@@ -133,7 +133,7 @@ func benchmarkQuotes(nr_items int, b *testing.B) {
 	for i := 0; i < b.N; i++ {
         myFzf := New(quotes, opts)
 		myFzf.Search(`hello world`)
-		<-myFzf.GetResultCannel()
+		<-myFzf.GetResultChannel()
         myFzf.End()
 	}
 }

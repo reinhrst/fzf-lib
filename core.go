@@ -120,7 +120,7 @@ func (fzf *Fzf) start() {
 	go fzf.matcher.Loop()
 }
 
-func (fzf *Fzf) GetResultCannel() <-chan SearchResult {
+func (fzf *Fzf) GetResultChannel() <-chan SearchResult {
 	return fzf.resultChannel
 }
 
@@ -198,7 +198,7 @@ func RunBasicBenchmark() {
         for _, needle := range []string{`hello world`, `green beans`, `i 'll be back`} {
             starttime := time.Now()
             myFzf.Search(needle)
-            result, _ := <-myFzf.GetResultCannel()
+            result, _ := <-myFzf.GetResultChannel()
             endtime := time.Now()
             fmt.Printf("Run of %d sentences took %.3f ms (%d results)\n",
                 len(sentences), float64(endtime.Sub(starttime).Microseconds())/1000,

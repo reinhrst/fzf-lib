@@ -66,11 +66,11 @@ func main() {
     var myFzf = fzf.New(hayStack, options)
     var result fzf.SearchResult
     myFzf.Search(`^hel owo`)
-    result = <- myFzf.GetResultCannel()
+    result = <- myFzf.GetResultChannel()
     fmt.Printf("%#v", result)
     time.Sleep(200 * time.Millisecond)
     myFzf.Search(`^hy owo`)
-    result = <- myFzf.GetResultCannel()
+    result = <- myFzf.GetResultChannel()
     fmt.Printf("%#v", result)
     myFzf.End() // Note: not strictly necessary since end of program
 }
