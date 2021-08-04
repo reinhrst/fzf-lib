@@ -2,7 +2,6 @@ package fzf
 
 import (
 	"fmt"
-	"runtime"
 	"sort"
 	"sync"
 	"time"
@@ -41,7 +40,7 @@ const (
 // NewMatcher returns a new Matcher
 func NewMatcher(patternBuilder func(string) *Pattern,
 	sort bool, tac bool, eventBox *util.EventBox) *Matcher {
-	partitions := util.Min(numPartitionsMultiplier*runtime.NumCPU(), maxPartitions)
+	partitions := util.Min(numPartitionsMultiplier*numCPU(), maxPartitions)
 	return &Matcher{
 		patternBuilder: patternBuilder,
 		sort:           sort,
