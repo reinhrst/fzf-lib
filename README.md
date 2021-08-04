@@ -38,9 +38,6 @@ It is hard to properly compare this to `fzf --filter`, since it's not clear how 
 However the results are in the same order; you can see more info on [my blog][2].
 Obviously the results depend a lot on system and exact use, however I do think it's fair to say that up until 100k strings to search in, you should have a performance that will work for updating-the-results-while-typing, especially since that will have caching that was not taken into account here.
 
-Note: There is also a RunBasicBenchmark function in the exported library.
-This is there so that some benchmarks can be run when the library is imported into another package.
-Since there are many transpilers for Go, this function may be used to compare pre and post transpile performance.
 
 ### Installation
 

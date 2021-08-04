@@ -145,7 +145,3 @@ func BenchmarkQuotes(b *testing.B) {
 			func(b *testing.B) { benchmarkQuotes(nr_quotes, b) })
 	}
 }
-
-func TestBasicBenchmark(t *testing.T) {
-	RunBasicBenchmark()
-}
