@@ -151,6 +151,12 @@ The wishlist for v1.0 is (in addition to extra (stress)tests):
 If you like the project, I always appeciate feedback (on [my blog][2]), in the issues or by starring this repository.
 I still have a dream that one day I'll be able to have fans pay for my coffees and beers; when that time comes, you'll find a button here!
 
+#### Can you share more info into the inner workings of fzf(-lib)
+Fzf-lib is just the code that remains if you strip all interfaces from [fzf][1].
+You should approach fzf's author for more info on choices made and how stuff actually works.
+
+Having said that, I was required to do some reverse-engineering of some parts; I documented some of this in response to a github issue: https://github.com/reinhrst/fzf-lib/issues/1.
+If you're interested in this kind of stuff, I suggest you read there.
 
 [1]: https://github.com/junegunn/fzf
 [2]: https://blog.claude.nl/tech/making-fzf-into-a-golang-library-fzf-lib/
