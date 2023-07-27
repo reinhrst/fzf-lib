@@ -1,3 +1,8 @@
+## UPDATE 2023-07-23
+Note that I'm not updating this repo to keep track with the latest fzf changes, nor dio I apply security updates (some of the dependabot updates seem to be high-risk). If you use this code, you're responsible for doing this yourself!
+## End update
+
+
 This repo is an attempt to create a workable go-library from the amazing [fzf][1] package
 from Junegunn Choi.
 
