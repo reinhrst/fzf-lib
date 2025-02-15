@@ -2,8 +2,8 @@ package fzf
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -99,7 +99,7 @@ func TestExactVsNonExactSearch(t *testing.T) {
 }
 
 func TestQuotes(t *testing.T) {
-	quoteBytes, err := ioutil.ReadFile("testdata/quotes.txt")
+	quoteBytes, err := os.ReadFile("testdata/quotes.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -118,7 +118,7 @@ func TestQuotes(t *testing.T) {
 }
 
 func benchmarkQuotes(nr_items int, b *testing.B) {
-	quoteBytes, err := ioutil.ReadFile("testdata/quotes.txt")
+	quoteBytes, err := os.ReadFile("testdata/quotes.txt")
 	if err != nil {
 		panic(err)
 	}
