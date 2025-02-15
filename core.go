@@ -20,7 +20,7 @@ type Options struct {
 	// "Do not normalize latin script letters for matching."
 	Normalize bool
 	// Array with options from {ByScore, ByLength, ByBegin, ByEnd}.
-	// Metches will first be sorted by the first element, ties will be sorted by
+	// Matches will first be sorted by the first element, ties will be sorted by
 	// second element, etc.
 	// ByScore: Each match is scored (see algo file for more info), higher score
 	// comes first
